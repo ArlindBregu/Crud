@@ -60,21 +60,52 @@ $(document).ready(function() {
     }
   });
 
-  /*$("body").on("click", "edit-employee", function() {
+  $("body").on("click", ".edit-employee", function() {
     var id = $(this).parent("td").data('id');
-    var birthDate = $(this).parent("td").prev("td").text();
-    var firstName = $(this).parent("td").prev("td").prev("td").text();
+    var gender = $(this).parent("td").prev("td").text();
+    var birthDate = $(this).parent("td").prev("td").prev("td").text();
     var lastName = $(this).parent("td").prev("td").prev("td").prev("td").text();
-    var gender = $(this).parent("td").prev("td").prev("td").prev("td").prev("td").text();
+    var firstName = $(this).parent("td").prev("td").prev("td").prev("td").prev("td").text();
 
+    $("#birth_edit").val(birthDate);
+    $("#name_edit").val(firstName);
+    $("#surname_edit").val(lastName);
+    $("#gender_edit").val(gender);
 
-  })*/
+    $("#edit-employee-form").on('submit', function(e) {
+      e.preventDefault();
+      var form_action = $("#edit-employee-form").attr("action");
+      var name = $("#name_edit").val();
+      var surname = $("#surname_edit").val();
+      var birth = $("#birth_edit").val();
+      var sex = $("#gender_edit").val()
+      dysplay = "create";
+
+      if(firstName != '' && lastName != ''){
+        for(let i=0; i<data.length; i++){
+          if(data[i].id==id){
+            data[i].firstName= name;
+            data[i].lastName= surname;
+            data[i].birthDate = birth;
+            data[i].gender = sex;
+            break;
+          }
+        }
+        displayEmlpoyeeList();
+        $("#edit-employee").modal('hide');
+        toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
+      }else{
+        alert('All fields are required. Please make sure you fill out all fields correctly.')
+      }
+    })
+  })
 
   $("body").on("click", ".delete-employee", function() {
     var id = $(this).parent("td").data('id');
     for(let i=0; i<data.length; i++){
       if(data[i].id==id){
         data.splice(i, 1);
+        break;
       }
     }
     displayEmlpoyeeList();
@@ -91,6 +122,8 @@ $(document).ready(function() {
       rows= rows +'<td>' +value.gender +'</td>';
       rows= rows +'<td data-id="'+value.id+'">';
       rows = rows +'<button class="btn btn-danger btn-sm delete-employee">Elimina</button>';
+      rows = rows +'&nbsp&nbsp';
+      rows = rows +'<button class="btn btn-secondary btn-sm edit-employee" data-toggle="modal" data-target="#edit-employee">Modifica</button>';
       rows = rows +'</td>';
       rows = rows +'</tr>';
     });
