@@ -38,7 +38,16 @@ var data=[
 var nextId = 10006;
 
 $(document).ready(function() {
-  displayEmlpoyeeList();
+  
+  $.ajax({
+    method: "GET",
+    url: "http://localhost:8080/employees"
+  })
+  .done(function(msg) {
+    console.log(msg['_embedded']['employees']);
+    data=msg['_embedded']['employees'];
+    displayEmlpoyeeList();
+  });
 
   $("#create-employee-form").on('submit', function(e) {
     e.preventDefault();
