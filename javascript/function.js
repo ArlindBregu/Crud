@@ -1,6 +1,6 @@
 var data=[];
 var links;
-var page = 0;
+var page;
 var api = "http://localhost:8080/employees?page="+page+"&size=20";
 var nextId = 500000;
 
@@ -15,13 +15,11 @@ $(document).ready(function() {
 
   $("#next-button").on("click", function() {
     api = links['next']['href'];
-    page++;
     get();
   });
 
   $("#previous-button").on("click", function() {
-    page--;
-    api = "http://localhost:8080/employees?page="+page+"&size=20";
+    api = links['prev']['href'];
     get();
   });
 
@@ -40,7 +38,9 @@ $(document).ready(function() {
       console.log(msg['_embedded']['employees']);
       data=msg['_embedded']['employees'];
       links=msg['_links'];
+      page=msg['page']['number'];
       displayEmlpoyeeList();
+      dysplayPagination();
     });
   }
   
@@ -54,15 +54,23 @@ $(document).ready(function() {
     var birth = $("#birthdate").val();
     var sex = $("#gender").val()
     dysplay = "create";
+    var payload = JSON.stringify({birthDate: birth, firstName: name, lastName: surname, gender: sex});
+    console.log(payload);
 
     if(name != '' && surname != ''){
-      data.push({id: nextId, birthDate: birth, firstName: name, lastName: surname, gender: sex});
-      nextId++;
-  
-      displayEmlpoyeeList();
+      $.ajax({
+        method: "POST",
+        url: 'http://localhost:8080/employees',
+        contentType: "application/json; charset=utf-8",
+        body: payload
+      })
+      .done(function(msg) {
+        get();
+      });
+
       $("#create-employee-form")[0].reset();
       $("#create-employee").modal('hide');
-      toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
+      t//oastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
     }else{
       alert('All fields are required. Please make sure you fill out all fields correctly.')
     }
@@ -114,13 +122,13 @@ $(document).ready(function() {
   //Delete an employee
   $("body").on("click", ".delete-employee", function() {
     var id = $(this).parent("td").data('id');
-    for(let i=0; i<data.length; i++){
-      if(data[i].id==id){
-        data.splice(i, 1);
-        break;
-      }
-    }
-    displayEmlpoyeeList();
+    $.ajax({
+      method: "DELETE",
+      url: 'http://localhost:8080/employees/'+id
+    })
+    .done(function(msg) {
+      get();
+    });
   });
 
   function displayEmlpoyeeList() {
@@ -142,5 +150,10 @@ $(document).ready(function() {
     $("tbody").html(rows);
   }
 
-});
+  function dysplayPagination() {
+    let code = '';
+    code += '<button class="btn btn-secondary" disabled>'+page+'</button>';
+    $("pagination").html(code);
+  }
 
+});
