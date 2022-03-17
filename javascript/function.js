@@ -55,14 +55,13 @@ $(document).ready(function() {
     var sex = $("#gender").val()
     dysplay = "create";
     var payload = JSON.stringify({birthDate: birth, firstName: name, lastName: surname, gender: sex});
-    console.log(payload);
 
     if(name != '' && surname != ''){
       $.ajax({
         method: "POST",
         url: 'http://localhost:8080/employees',
-        contentType: "application/json; charset=utf-8",
-        body: payload
+        contentType: "application/json",
+        data: payload
       })
       .done(function(msg) {
         get();
@@ -70,7 +69,7 @@ $(document).ready(function() {
 
       $("#create-employee-form")[0].reset();
       $("#create-employee").modal('hide');
-      t//oastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
+      toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
     }else{
       alert('All fields are required. Please make sure you fill out all fields correctly.')
     }
@@ -92,25 +91,27 @@ $(document).ready(function() {
 
     $("#edit-employee-form").on('submit', function(e) {
       e.preventDefault();
-      //var form_action = $("#edit-employee-form").attr("action");
+      var form_action = $("#edit-employee-form").attr("action");
       var idE = $("#id_edit").val();
-      var name = $("#name_edit").val();
-      var surname = $("#surname_edit").val();
-      var birth = $("#birth_edit").val();
-      var sex = $("#gender_edit").val()
-      //dysplay = "create";
+      var nameE = $("#name_edit").val();
+      var surnameE = $("#surname_edit").val();
+      var birthE = $("#birth_edit").val();
+      var sexE = $("#gender_edit").val()
+      dysplay = "create";
+      var payload2 = JSON.stringify({birthDate: birthE, firstName: nameE, lastName: surnameE, gender: sexE});
 
       if(firstName != '' && lastName != ''){
-        for(let i=0; i<data.length; i++){
-          if(data[i].id==idE){
-            data[i].firstName= name;
-            data[i].lastName= surname;
-            data[i].birthDate = birth;
-            data[i].gender = sex;
-            break;
-          }
-        }
-        displayEmlpoyeeList();
+        
+        $.ajax({
+          method: "PUT",
+          url: 'http://localhost:8080/employees/'+idE,
+          contentType: "application/json",
+          data: payload2
+        })
+        .done(function() {
+          get();
+        })
+
         $("#edit-employee").modal('hide');
         toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
       }else{
