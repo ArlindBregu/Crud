@@ -1,8 +1,9 @@
 var data=[];
 var links;
-var page;
-var api = "http://localhost:8080/employees?page="+page+"&size=20";
+var page=0;
+var api = "http://localhost:8080/index.php?page="+page+"&size=20";
 var nextId = 500000;
+var last;
 
 $(document).ready(function() {
   
@@ -38,7 +39,8 @@ $(document).ready(function() {
       console.log(msg['_embedded']['employees']);
       data=msg['_embedded']['employees'];
       links=msg['_links'];
-      page=msg['page']['number'];
+      page=msg['pages']['number'];
+      last=msg['pages']['totalPages'];
       displayEmlpoyeeList();
       dysplayPagination();
     });
@@ -54,12 +56,12 @@ $(document).ready(function() {
     var birth = $("#birthdate").val();
     var sex = $("#gender").val()
     dysplay = "create";
-    var payload = JSON.stringify({birthDate: birth, firstName: name, lastName: surname, gender: sex});
+    var payload = JSON.stringify({birth_date: birth, first_name: name, last_name: surname, gender: sex});
 
     if(name != '' && surname != ''){
       $.ajax({
         method: "POST",
-        url: 'http://localhost:8080/employees',
+        url: 'http://localhost:8080/index.php',
         contentType: "application/json",
         data: payload
       })
@@ -69,7 +71,6 @@ $(document).ready(function() {
 
       $("#create-employee-form")[0].reset();
       $("#create-employee").modal('hide');
-      toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
     }else{
       alert('All fields are required. Please make sure you fill out all fields correctly.')
     }
@@ -98,13 +99,13 @@ $(document).ready(function() {
       var birthE = $("#birth_edit").val();
       var sexE = $("#gender_edit").val()
       dysplay = "create";
-      var payload2 = JSON.stringify({birthDate: birthE, firstName: nameE, lastName: surnameE, gender: sexE});
+      var payload2 = JSON.stringify({birth_date: birthE, first_name: nameE, last_name: surnameE, gender: sexE});
 
       if(firstName != '' && lastName != ''){
         
         $.ajax({
           method: "PUT",
-          url: 'http://localhost:8080/employees/'+idE,
+          url: 'http://localhost:8080/index.php?id='+idE,
           contentType: "application/json",
           data: payload2
         })
@@ -113,7 +114,6 @@ $(document).ready(function() {
         })
 
         $("#edit-employee").modal('hide');
-        toastr.success('Employee created successfully.', 'Success Alert', {timeOut:5000});
       }else{
         alert('All fields are required. Please make sure you fill out all fields correctly.')
       }
@@ -125,7 +125,7 @@ $(document).ready(function() {
     var id = $(this).parent("td").data('id');
     $.ajax({
       method: "DELETE",
-      url: 'http://localhost:8080/employees/'+id
+      url: 'http://localhost:8080/index.php?id='+id
     })
     .done(function(msg) {
       get();
@@ -137,9 +137,9 @@ $(document).ready(function() {
     $.each(data, function(index, value) {
       rows = rows + '<tr>';
       rows= rows +'<td>' +value.id +'</td>';
-      rows= rows +'<td>' +value.firstName +'</td>';
-      rows= rows +'<td>' +value.lastName +'</td>';
-      rows= rows +'<td>' +value.birthDate +'</td>';
+      rows= rows +'<td>' +value.first_name +'</td>';
+      rows= rows +'<td>' +value.last_name +'</td>';
+      rows= rows +'<td>' +value.birth_date +'</td>';
       rows= rows +'<td>' +value.gender +'</td>';
       rows= rows +'<td data-id="'+value.id+'">';
       rows = rows +'<button class="btn btn-danger btn-sm delete-employee"><i class="fa-solid fa-trash-can"></i></button>';
@@ -152,8 +152,22 @@ $(document).ready(function() {
   }
 
   function dysplayPagination() {
-    let code = '';
+    let code = ''; 
+    if(page==0){
+      document.getElementById('first-button').setAttribute("disabled", "disabled");
+      document.getElementById('previous-button').setAttribute("disabled", "disabled");
+    }else{
+      document.getElementById('first-button').removeAttribute("disabled");
+      document.getElementById('previous-button').removeAttribute("disabled");
+    }
     code += '<button class="btn btn-secondary" disabled>'+page+'</button>';
+    if(page==last){
+      document.getElementById('next-button').setAttribute("disabled", "disabled");
+      document.getElementById('last-button').setAttribute("disabled", "disabled");
+    }else{
+      document.getElementById('next-button').removeAttribute("disabled");
+      document.getElementById('last-button').removeAttribute("disabled");
+    }
     $("pagination").html(code);
   }
 
